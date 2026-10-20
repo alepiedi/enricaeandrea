@@ -23,25 +23,30 @@ window.WEDDING = {
   },
 
   // I due cani portafedi.
-  // foto: se la lasciate vuota compare il disegno, colorato con i colori qui sotto.
-  // orecchie: 'giu' (a penzoloni) oppure 'su' (a punta)
+  // ritratto: disegno del cane (PNG con lo sfondo trasparente) per la scheda
+  // foto: foto vera, compare quando si tocca il cane nella scheda
+  // colori e orecchie ('giu' o 'su'): per il cane disegnato nel riporto, nel finale e nel messaggio segreto
   cani: [
     {
-      nome: 'Pepe', // ← nome del primo cane
-      foto: '',     // es. 'assets/img/cani/pepe.jpg'
+      nome: 'Giotto',
+      razza: 'Labrador',
+      ritratto: 'assets/img/cani/giotto-ritratto.png',
+      foto: 'assets/img/cani/giotto-foto.jpg',
       porta: 'la fede di Enrica',
-      segni: 'Orecchie da ascoltatore professionista',
-      talento: 'Riporta tutto. Anche quello che non doveva.',
-      colori: { pelo: '#c99c6b', muso: '#f4e7d3', orecchie: '#9a6d44', macchia: '' },
+      segni: 'Coda che non si ferma mai',
+      talento: 'Trovare qualcosa da mangiare ovunque, anche dove non c’è',
+      colori: { pelo: '#e8cd9a', muso: '#f6e9cf', orecchie: '#d6b276', macchia: '' },
       orecchie: 'giu',
     },
     {
-      nome: 'Luna', // ← nome del secondo cane
-      foto: '',     // es. 'assets/img/cani/luna.jpg'
+      nome: 'Penelope',
+      razza: 'Amstaff',
+      ritratto: 'assets/img/cani/penelope-ritratto.png',
+      foto: 'assets/img/cani/penelope-foto.jpg',
       porta: 'la fede di Andrea',
-      segni: 'Sguardo che ottiene qualsiasi cosa',
-      talento: 'Dormire sul divano nel posto più comodo',
-      colori: { pelo: '#f1ebe1', muso: '#ffffff', orecchie: '#d8c3a2', macchia: '#d8c3a2' },
+      segni: 'Bianca e grigia, con un cuore enorme',
+      talento: 'Chiedere coccole. E ottenerle, sempre',
+      colori: { pelo: '#6d717c', muso: '#ffffff', orecchie: '#5b5f6a', macchia: '' },
       orecchie: 'su',
     },
   ],
@@ -64,11 +69,18 @@ window.WEDDING = {
 
   // Foto appese al nastro (consigliato: 6–8 foto verticali, ~1000px di lato lungo)
   foto: [
-    { src: 'assets/img/photos/01.jpg', didascalia: 'Dove tutto è cominciato' },
-    { src: 'assets/img/photos/02.jpg', didascalia: 'Il primo viaggio' },
-    { src: 'assets/img/photos/03.jpg', didascalia: 'E poi arrivò Pepe' },
-    { src: 'assets/img/photos/04.jpg', didascalia: 'E poi anche Luna' },
-    { src: 'assets/img/photos/05.jpg', didascalia: 'Casa nostra' },
-    { src: 'assets/img/photos/06.jpg', didascalia: 'Il sì' },
+    { src: 'assets/img/photos/01-prima-foto-2012.jpg', didascalia: 'La nostra prima foto insieme, nel lontano 2012' },
+    { src: 'assets/img/photos/02-al-mare.jpg', didascalia: 'Baci salati' },
+    { src: 'assets/img/photos/03-al-lago.jpg', didascalia: 'Gite fuori porta' },
+    { src: 'assets/img/photos/04-stessa-fede.jpg', didascalia: 'La stessa fede (giallorossa)' },
+    { src: 'assets/img/photos/05-sottacqua.jpg', didascalia: 'Insieme, anche sott’acqua' },
+    { src: 'assets/img/photos/06-viaggio-piu-bello.jpg', didascalia: 'Il viaggio più bello fino ad ora' },
+    { src: 'assets/img/photos/07-vista-mare.jpg', didascalia: 'Sempre più in alto' },
+    { src: 'assets/img/photos/08-posto-del-cuore.jpg', didascalia: 'Il posto del cuore' },
+    { src: 'assets/img/photos/09-posto-del-cuore-tramonto.jpg', didascalia: 'Il posto del cuore, al tramonto' },
+    { src: 'assets/img/photos/10-tutti-e-quattro.jpg', didascalia: 'In viaggio, tutti e quattro' },
+    { src: 'assets/img/photos/11-in-tiro.jpg', didascalia: 'Già pronti per il grande giorno' },
+    { src: 'assets/img/photos/12-mani-e-zampe.jpg', didascalia: 'Mani e zampe' },
+    { src: 'assets/img/photos/13-la-proposta.jpg', didascalia: 'La proposta' },
   ],
 };

@@ -29,25 +29,16 @@ Niente framework e niente build: HTML, CSS e JavaScript puri. Funziona anche con
 
 - `data` → data del matrimonio; `orario` → ora della cerimonia (vuoto = non mostrato)
 - `luogo` → nome, indirizzo, descrizione e link Maps della location
-- `cani` → **nome**, cosa porta, segni particolari, talento, **colori del pelo** e tipo di **orecchie** (`'giu'` o `'su'`) di ciascun cane. Con `foto` la scheda mostra la foto vera al posto del disegno
+- `cani` → Giotto (labrador) e Penelope (amstaff): nome, razza, cosa porta, segni particolari, talento. `ritratto` è il disegno nella scheda, `foto` la foto vera che compare quando li si tocca; `colori` e `orecchie` servono per i cani disegnati nel riporto, nel finale e nel messaggio segreto
 - `rsvp.entro` → data limite per rispondere (vuoto = "Fatecelo sapere appena potete")
 - `foto` → elenco foto e didascalie
 - `ossi` → messaggio segreto e premio per chi trova i tre ossi
 
 ## 📷 Dove mettere le foto
 
-**Foto della coppia** (la sezione *La nostra storia*):
+**Foto della coppia** (la sezione *La nostra storia*): stanno in **`assets/img/photos/`**, ridimensionate a 1000 px sul lato lungo. Per aggiungerne una, mettetela nella cartella (JPG, max ~300 KB) e aggiungete una riga all'elenco `foto` in `config.js`, es. `{ src: 'assets/img/photos/14-nuova.jpg', didascalia: 'La didascalia' }`. L'ordine dell'elenco è l'ordine sul nastro.
 
-1. Mettete le foto in **`assets/img/photos/`** (JPG, circa 1000 px sul lato lungo, max ~300 KB ciascuna; vengono ritagliate quasi quadrate, come le polaroid).
-2. Il modo più semplice è **sostituire** i file che ci sono già (`01.jpg` … `06.jpg`, ora sono segnaposto) mantenendo gli stessi nomi.
-3. Oppure usate nomi nuovi e aggiornate l'elenco `foto` in `config.js`, ad esempio `{ src: 'assets/img/photos/mare.jpg', didascalia: 'Quella volta al mare' }`. Potete metterne quante volete (consigliato 6–8).
-
-**Foto dei cani** (facoltative):
-
-1. Mettetele in **`assets/img/cani/`** (quadrate, con il muso al centro, ~600 px).
-2. In `config.js`, nella scheda del cane, scrivete il percorso in `foto`, es. `foto: 'assets/img/cani/pepe.jpg'`.
-
-Se `foto` resta vuota compare il cane disegnato: cambiate `colori` (pelo, muso, orecchie, macchia sull'occhio) per farlo somigliare a quello vero. Il disegno resta comunque nel gioco del riporto, nel finale e nel messaggio segreto.
+**Cani**: in **`assets/img/cani/`** ci sono i ritratti disegnati (`*-ritratto.png`, con lo sfondo trasparente) e le foto vere ritagliate quadrate (`*-foto.jpg`).
 
 ### Anteprima su WhatsApp
 `assets/img/og-image.jpg` è l'immagine che appare quando si condivide il link. È collegata tramite l'URL completo in `index.html` (`og:image`). Se cambiate indirizzo del sito, aggiornate anche quello.

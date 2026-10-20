@@ -347,7 +347,10 @@
     wrap.innerHTML = DOGS.map((c, i) => `
       <article class="pup pup--${i}" data-pup="${i}">
         <button class="pup__art" type="button" aria-label="Fai una carezza a ${esc(c.nome)}">
-          ${c.foto ? `<img class="pup__photo" src="${esc(c.foto)}" alt="${esc(c.nome)}" loading="lazy">` : dogSit(c)}
+          ${c.ritratto
+            ? `<img class="pup__portrait" src="${esc(c.ritratto)}" alt="${esc(c.nome)}" loading="lazy">`
+            : c.foto ? '' : dogSit(c)}
+          ${c.foto ? `<img class="pup__photo${c.ritratto ? ' pup__photo--peek' : ''}" src="${esc(c.foto)}" alt="${c.ritratto ? '' : esc(c.nome)}" loading="lazy">` : ''}
           <span class="pup__bubble" aria-hidden="true">Bau!</span>
         </button>
         <svg class="pup__rosette" viewBox="0 0 100 130" aria-hidden="true">
@@ -357,7 +360,7 @@
           <text x="50" y="58" text-anchor="middle" font-family="Cormorant Garamond, serif" font-size="26" font-style="italic" fill="${RIBBON_DEEP}">${i + 1}°</text>
         </svg>
         <div class="pup__body">
-          <p class="pup__role">Portafedi ufficiale</p>
+          <p class="pup__role">${c.razza ? `${esc(c.razza)} · ` : ''}Portafedi ufficiale</p>
           <h3 class="pup__name">${esc(c.nome)}</h3>
           <dl class="pup__facts">
             <div><dt>Porterà</dt><dd>${esc(c.porta || '')}</dd></div>
@@ -376,7 +379,7 @@
         const r = art.getBoundingClientRect();
         Petals.hearts(r.left + r.width / 2, r.top + r.height * .3, 7);
         clearTimeout(card._t);
-        card._t = setTimeout(() => card.classList.remove('is-happy'), 1600);
+        card._t = setTimeout(() => card.classList.remove('is-happy'), card.querySelector('.pup__photo--peek') ? 2600 : 1600);
       });
     });
   }
