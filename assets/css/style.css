@@ -59,8 +59,8 @@ body::after {
   inset: 0;
   pointer-events: none;
   z-index: 300;
-  opacity: .06;
-  mix-blend-mode: multiply;
+  opacity: .045;
+  transform: translateZ(0); /* livello a sé: scorrendo non si ridisegna (niente fusione con la pagina, costa troppo sui telefoni) */
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
@@ -350,12 +350,14 @@ h2 {
 body.is-open .ring { opacity: 1; }
 body.is-threaded-end .ring { opacity: 0; }
 .ring__pulse { transform-box: fill-box; transform-origin: center; }
-body.is-idle .ring__pulse { animation: ringPulse 1.3s ease-in-out infinite; }
+/* da fermi la fede pulsa qualche volta per invitare a scendere, poi si quieta (niente lavoro continuo) */
+body.is-idle .ring__pulse { animation: ringPulse 1.3s ease-in-out 3; }
 @keyframes ringPulse { 50% { transform: scale(1.35); } }
 .ring__back { fill: none; stroke: #9d7b45; stroke-width: 3.4; }
-.ring__band { fill: none; stroke: url(#ringGold); stroke-width: 3.8; stroke-linecap: round; filter: drop-shadow(0 1px 1px rgba(60,40,10,.4)); }
+.ring__band { fill: none; stroke: url(#ringGold); stroke-width: 3.8; stroke-linecap: round; }
 .ring__glint { fill: none; stroke: #fff; stroke-width: 1; stroke-linecap: round; opacity: .85; }
-.ring__spark { fill: #fff; transform-box: fill-box; transform-origin: center; animation: twinkle 2.2s ease-in-out infinite; filter: drop-shadow(0 0 3px rgba(255,255,255,.9)); }
+.ring__spark { fill: #fff; transform-box: fill-box; transform-origin: center; opacity: 0; }
+body.is-idle .ring__spark { animation: twinkle 2.2s ease-in-out 3; }
 @keyframes twinkle {
   0%, 60%, 100% { transform: scale(.15) rotate(0); opacity: 0; }
   75% { transform: scale(.6) rotate(45deg); opacity: 1; }
@@ -690,8 +692,8 @@ body.is-open .eyebrow.reveal-hero { transition-delay: .9s; }
   width: 100%; height: 100%;
   object-fit: cover;
   /* polaroid appena scattata: scura e slavata, poi si sviluppa */
-  filter: brightness(.25) saturate(0) contrast(.6) blur(1.5px);
-  transition: filter 4.2s cubic-bezier(.3, .1, .3, 1);
+  filter: brightness(.25) saturate(0) contrast(.6); /* niente sfocatura: sui telefoni costa troppo */
+  transition: filter 2.4s cubic-bezier(.3, .1, .3, 1);
 }
 .photo.is-developed .photo__img img { filter: none; }
 .photo figcaption {
@@ -702,7 +704,7 @@ body.is-open .eyebrow.reveal-hero { transition-delay: .9s; }
   line-height: 1.1;
   padding: 14px 4px 18px;
   opacity: 0;
-  transition: opacity 1.5s ease 2.6s;
+  transition: opacity 1s ease 1.4s;
 }
 .photo.is-developed figcaption { opacity: 1; }
 
@@ -1210,8 +1212,11 @@ body.is-open .eyebrow.reveal-hero { transition-delay: .9s; }
   z-index: 150;
 }
 
+/* animazioni ferme quando non si vedono (le attiva/disattiva main.js) */
+.is-paused, .is-paused * { animation-play-state: paused !important; }
+
 /* comparsa generica */
-.reveal { opacity: 0; transform: translateY(40px); transition: opacity 1.1s ease, transform 1.3s var(--ease-out); }
+.reveal { opacity: 0; transform: translateY(30px); transition: opacity .8s ease, transform .9s var(--ease-out); }
 .reveal.is-in { opacity: 1; transform: none; }
 
 /* ==========================================================================
