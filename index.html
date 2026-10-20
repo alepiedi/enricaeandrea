@@ -103,15 +103,12 @@
   </button>
 
   <!-- petali -->
-  <canvas class="petals" id="petals" aria-hidden="true"></canvas>
+  <canvas class="petals" id="petals" aria-hidden="true" hidden></canvas>
 
   <main id="main">
     <!-- IL NASTRO AZZURRO con la fede che ci scorre sopra: disegnato via JS -->
     <svg class="ribbon" id="ribbon" aria-hidden="true">
       <defs>
-        <mask id="ribbonMask" maskUnits="userSpaceOnUse">
-          <path id="ribbonMaskPath" fill="none" stroke="#fff" stroke-width="26" stroke-linecap="round" />
-        </mask>
         <linearGradient id="ringGold" x1="0" y1="0" x2="1" y2="1">
           <stop offset="0" stop-color="#fff4d8"/><stop offset=".4" stop-color="#d4b27a"/>
           <stop offset=".65" stop-color="#f1dfb5"/><stop offset="1" stop-color="#9d7b45"/>
@@ -121,7 +118,7 @@
       <g class="ring" id="ringBack"><g class="ring__pulse">
         <path class="ring__back" d="M0 -13 A6 13 0 0 1 0 13" />
       </g></g>
-      <g mask="url(#ribbonMask)">
+      <g>
         <path class="ribbon__shadow" id="ribbonShadow" />
         <path class="ribbon__edge" id="ribbonEdge" />
         <path class="ribbon__base" id="ribbonBase" />

@@ -19,6 +19,10 @@
   let lastScroll = 0;
   addEventListener('scroll', () => (lastScroll = performance.now()), { passive: true });
   const idleFor = () => performance.now() - lastScroll;
+  // posizione di scroll letta una sola volta per fotogramma, prima di qualsiasi modifica alla pagina
+  let FY = 0;
+  // risveglia il ciclo di animazione (che si ferma da solo quando non c'è niente da muovere)
+  let wake = () => {};
 
   /* Scorrimento lento e morbido (anche su iPhone), interrotto appena l'utente tocca o scorre da sé */
   const Glide = (() => {
@@ -295,10 +299,11 @@
     const cvs = $('#drift');
     const ctx = cvs.getContext('2d');
     const hero = $('.hero');
-    let w, h, dpr, parts = [], visible = true;
+    let w, h, dpr, parts = [], inView = true, raf = 0, lastDraw = 0;
+    const visible = () => inView && !document.hidden;
 
     const resize = () => {
-      dpr = Math.min(devicePixelRatio || 1, 2);
+      dpr = 1; // petali piccoli e sfumati: non serve la piena risoluzione
       w = hero.clientWidth; h = hero.clientHeight;
       cvs.width = w * dpr; cvs.height = h * dpr;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -314,7 +319,11 @@
     };
 
     const loop = (t) => {
-      if (visible) {
+      raf = 0;
+      if (!visible()) return; // fuori schermo il ciclo si ferma del tutto
+      if (t - lastDraw < 30) { raf = requestAnimationFrame(loop); return; } // petali lenti: 30 fotogrammi al secondo bastano
+      lastDraw = t;
+      {
         ctx.clearRect(0, 0, w, h);
         for (const q of parts) {
           q.x += q.vx + Math.sin(t / 1800 + q.p) * .35;
@@ -330,13 +339,15 @@
           ctx.restore();
         }
       }
-      requestAnimationFrame(loop);
+      raf = requestAnimationFrame(loop);
     };
+    const start = () => { if (!raf && !reduced) raf = requestAnimationFrame(loop); };
 
-    new IntersectionObserver(([e]) => (visible = e.isIntersecting)).observe(hero);
+    new IntersectionObserver(([e]) => { inView = e.isIntersecting; if (visible()) start(); }).observe(hero);
+    document.addEventListener('visibilitychange', () => { if (visible()) start(); });
     addEventListener('resize', resize);
     resize();
-    if (!reduced) requestAnimationFrame(loop);
+    start();
   }
 
   /* ------------------------------------------------------------------
@@ -390,13 +401,22 @@
     const set = (e) => { px = e.clientX; py = e.clientY; dirty = true; };
     addEventListener('pointermove', set, { passive: true });
     addEventListener('pointerdown', set, { passive: true });
-    addEventListener('scroll', () => (dirty = true), { passive: true });
+    // si lavora solo sui cani che si vedono in quel momento
+    const onScreen = new Set();
+    let io = null;
+    const watch = () => {
+      io = new IntersectionObserver((entries) => entries.forEach((e) => {
+        if (e.isIntersecting) { onScreen.add(e.target); dirty = true; } else onScreen.delete(e.target);
+      }));
+      $$('.dog--sit').forEach((svg) => io.observe(svg));
+    };
     return () => {
-      if (!dirty || reduced) return;
+      if (reduced) return;
+      if (!io) watch(); // i cani esistono tutti quando parte il ciclo
+      if (!dirty || !onScreen.size) return;
       dirty = false;
-      $$('.dog--sit').forEach((svg) => {
+      onScreen.forEach((svg) => {
         const r = svg.getBoundingClientRect();
-        if (r.bottom < 0 || r.top > innerHeight) return;
         const cx = r.left + r.width / 2, cy = r.top + r.height * .33;
         const dx = px - cx, dy = py - cy, d = Math.hypot(dx, dy) || 1;
         const k = Math.min(1, d / 220);
@@ -461,16 +481,20 @@
     // fisica del dondolio: la velocità di scroll "spinge" le foto
     let lastY = scrollY, push = 0;
     return () => {
-      if (reduced) return;
-      const dy = scrollY - lastY; lastY = scrollY;
+      if (reduced) return false;
+      const dy = FY - lastY; lastY = FY;
       push += (clamp(dy, -60, 60) - push) * 0.2;
+      let busy = Math.abs(push) > .05;
       for (const p of photos) {
         if (!p.visible) continue;
         const force = -push * 0.035 - (p.angle - p.rest) * 0.035;
         p.vel = (p.vel + force) * 0.94;
         p.angle = clamp(p.angle + p.vel, -28, 28);
+        if (Math.abs(p.vel) < .004 && Math.abs(p.angle - p.rest) < .05) continue; // ferma: non la ritocco
+        busy = true;
         p.sway.style.transform = `rotate(${p.angle.toFixed(2)}deg)`;
       }
+      return busy;
     };
   }
 
@@ -530,9 +554,8 @@
     const main = $('#main');
     const svg = $('#ribbon');
     const paths = ['#ribbonShadow', '#ribbonEdge', '#ribbonBase', '#ribbonSheen'].map((s) => $(s));
-    const mask = $('#ribbonMaskPath');
     const rings = [$('#ringBack'), $('#ringFront')];
-    let xs = [], ys = [], ls = [], maxY = [], total = 1, drawn = 0, target = 0, ready = false, tipPos = null, angle = 0;
+    let xs = [], ys = [], ls = [], maxY = [], total = 1, drawn = 0, target = 0, ready = false, tipPos = null, angle = 0, lastOff = '', lastTr = '', mainTop = 0, docH = 0;
 
     function collect() {
       const mr = main.getBoundingClientRect();
@@ -552,6 +575,9 @@
       const pts = collect();
       if (pts.length < 2) return;
       const H = main.offsetHeight;
+      // misure lette una volta sola qui (e a ogni ridimensionamento), non a ogni fotogramma
+      mainTop = main.getBoundingClientRect().top + scrollY;
+      docH = document.documentElement.scrollHeight;
       svg.setAttribute('height', H);
       svg.setAttribute('width', main.clientWidth);
       svg.style.height = H + 'px';
@@ -578,22 +604,22 @@
       maxY = [];
       ys.reduce((m, y, i) => (maxY[i] = Math.max(m, y)), -Infinity);
 
-      paths.forEach((p) => p.setAttribute('d', d));
-      mask.setAttribute('d', d);
-      mask.setAttribute('pathLength', total.toFixed(1));
-      mask.style.strokeDasharray = `${total} ${total + 10}`;
+      // il nastro si "srotola" con un tratteggio lungo quanto tutto il percorso
+      // (più leggero di una maschera: il telefono non deve ridipingere tutta la pagina)
+      paths.forEach((p) => {
+        p.setAttribute('d', d);
+        p.setAttribute('pathLength', total.toFixed(1));
+        p.style.strokeDasharray = `${total} ${total + 10}`;
+      });
+      lastOff = '';
       ready = true;
       update(true);
     }
 
     function targetFor() {
-      const doc = document.documentElement;
-      if (scrollY + innerHeight >= doc.scrollHeight - 4) return total;
-      const mainTop = main.getBoundingClientRect().top + scrollY;
-      // la fede sta in basso nello schermo; se si resta fermi, il nastro "tira" verso giù
-      const idle = idleFor() > 1800 && !Glide.active;
-      const tug = idle ? 0.09 * (0.5 - 0.5 * Math.cos(performance.now() / 380)) : 0;
-      const tipY = scrollY + innerHeight * (0.74 + tug) - mainTop;
+      if (FY + innerHeight >= docH - 4) return total;
+      // la fede sta in basso nello schermo
+      const tipY = FY + innerHeight * 0.74 - mainTop;
       // primo campione oltre la "linea di lettura"
       let lo = 0, hi = maxY.length - 1;
       while (lo < hi) { const m = (lo + hi) >> 1; if (maxY[m] > tipY) hi = m; else lo = m + 1; }
@@ -607,11 +633,14 @@
     }
 
     function update(snap) {
-      if (!ready || !document.body.classList.contains('is-open')) return;
+      if (!ready || !document.body.classList.contains('is-open')) return false;
       target = reduced ? total : targetFor();
-      drawn = snap === true && reduced ? target : drawn + (target - drawn) * 0.1;
+      drawn = snap === true && reduced ? target : drawn + (target - drawn) * 0.16;
       if (Math.abs(target - drawn) < .5) drawn = target;
-      mask.style.strokeDashoffset = (total - drawn).toFixed(1);
+      const off = (total - drawn).toFixed(1);
+      if (off === lastOff) return false; // fermo: niente da ridisegnare
+      lastOff = off;
+      paths.forEach((p) => (p.style.strokeDashoffset = off));
       const i = indexAt(drawn);
       const a = xs[Math.max(0, i - 2)], b = xs[Math.min(xs.length - 1, i + 2)];
       const c = ys[Math.max(0, i - 2)], e = ys[Math.min(ys.length - 1, i + 2)];
@@ -621,17 +650,18 @@
       while (goal - angle < -180) goal += 360;
       angle += (goal - angle) * 0.2;
       const tr = `translate(${xs[i].toFixed(1)} ${ys[i].toFixed(1)}) rotate(${angle.toFixed(1)}) scale(1.35)`;
-      rings.forEach((r) => r.setAttribute('transform', tr));
+      if (tr !== lastTr) { lastTr = tr; rings.forEach((r) => r.setAttribute('transform', tr)); }
       tipPos = [xs[i], ys[i]];
       document.body.classList.toggle('is-threaded-end', drawn > total - 2);
+      return true;
     }
 
     let t;
-    const schedule = () => { clearTimeout(t); t = setTimeout(build, 120); };
+    const schedule = () => { clearTimeout(t); t = setTimeout(() => { build(); wake(); }, 120); };
     new ResizeObserver(schedule).observe(main);
     addEventListener('resize', schedule);
     document.fonts && document.fonts.ready.then(schedule);
-    return { build, update, tip: () => tipPos };
+    return { build, update, tip: () => tipPos, docH: () => docH || document.documentElement.scrollHeight };
   }
 
   /* ------------------------------------------------------------------
@@ -643,7 +673,7 @@
     let parts = [], running = false, dpr = 1;
 
     const resize = () => {
-      dpr = Math.min(devicePixelRatio || 1, 2);
+      dpr = Math.min(devicePixelRatio || 1, 1.5);
       cvs.width = innerWidth * dpr; cvs.height = innerHeight * dpr;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     };
@@ -672,9 +702,10 @@
         else { ctx.scale(1, .5 + .5 * Math.abs(Math.sin(t / 220 + p.ph))); drawPetal(ctx, p.s); }
         ctx.restore();
       }
-      if (parts.length) requestAnimationFrame(loop); else { running = false; ctx.clearRect(0, 0, innerWidth, innerHeight); }
+      if (parts.length) requestAnimationFrame(loop); else { running = false; ctx.clearRect(0, 0, innerWidth, innerHeight); cvs.hidden = true; }
     };
-    const start = () => { if (!running) { running = true; requestAnimationFrame(loop); } };
+    // a riposo il canvas resta nascosto, così il telefono non lo ricompone a ogni scroll
+    const start = () => { if (!running) { running = true; cvs.hidden = false; requestAnimationFrame(loop); } };
 
     const burst = (x, y, n = 150, extra = {}) => {
       if (reduced) return;
@@ -1071,7 +1102,7 @@
   /* ------------------------------------------------------------------
      Guida a scendere: pulsante "Scorri" e prima discesa automatica
      ------------------------------------------------------------------ */
-  function guide() {
+  function guide(R) {
     const btn = $('#guide');
     const stops = ['#cani', '#foto', '#data', '#countdown', '#rsvp', '#fine'].map((s) => $(s));
     const top = (el) => el.getBoundingClientRect().top + scrollY;
@@ -1095,8 +1126,8 @@
     const update = () => {
       const open = document.body.classList.contains('is-open');
       const idle = idleFor() > 1500 && !Glide.active;
-      const nearEnd = scrollY + innerHeight > document.documentElement.scrollHeight - innerHeight * 0.5;
-      btn.classList.toggle('is-visible', open && (idle || scrollY < 10) && !nearEnd && !typing && !(playing && !paddock.classList.contains('is-done')));
+      const nearEnd = FY + innerHeight > R.docH() - innerHeight * 0.5;
+      btn.classList.toggle('is-visible', open && (idle || FY < 10) && !nearEnd && !typing && !(playing && !paddock.classList.contains('is-done')));
       document.body.classList.toggle('is-idle', open && idle && !nearEnd);
     };
 
@@ -1208,6 +1239,12 @@
   /* ------------------------------------------------------------------
      Comparse allo scroll
      ------------------------------------------------------------------ */
+  /* Le animazioni continue (code che scodinzolano, pallina che rimbalza) si fermano fuori schermo */
+  function pauseOffscreen() {
+    const io = new IntersectionObserver((entries) => entries.forEach((e) => e.target.classList.toggle('is-paused', !e.isIntersecting)));
+    $$('.paddock, .finale__scene, .pups__cards, .courier').forEach((el) => io.observe(el));
+  }
+
   function reveals() {
     const targets = [...$$('.section-head, .pup, .tags, .field-wrap, .letter, .cd, .finale__names')];
     targets.forEach((el) => el.classList.add('reveal'));
@@ -1242,7 +1279,7 @@
     const eyes = eyesFollow();
     const swayUpdate = gallery();
     const R = ribbon();
-    const G = guide();
+    const G = guide(R);
     drift();
     fetchGame(() => $('#countdown').classList.remove('is-locked'));
     countdown();
@@ -1250,21 +1287,33 @@
     rsvp();
     const finaleUpdate = finale();
     reveals();
+    pauseOffscreen();
     shake();
     bones();
 
+    // prima le letture, poi le scritture: così il browser non ricalcola il layout a metà fotogramma
+    // quando per un po' non si muove nulla il ciclo si ferma (la batteria ringrazia)
+    // e riparte appena si scorre, si tocca o cambia la pagina
+    let raf = 0, quiet = 0, prevY = -1, idleTimer = 0;
     const loop = () => {
-      swayUpdate();
-      R.update();
-      G.update();
+      raf = 0;
+      FY = scrollY;
       eyes();
+      const ribbonBusy = R.update();
+      G.update();
       finaleUpdate();
-      requestAnimationFrame(loop);
+      const swayBusy = swayUpdate();
+      quiet = ribbonBusy || swayBusy || FY !== prevY ? 0 : quiet + 1;
+      prevY = FY;
+      if (quiet < 20) raf = requestAnimationFrame(loop);
+      else { clearTimeout(idleTimer); idleTimer = setTimeout(G.update, 1600); } // per far comparire "Scorri"
     };
+    wake = () => { quiet = 0; if (!raf && document.body.classList.contains('is-open')) raf = requestAnimationFrame(loop); };
+    ['scroll', 'pointermove', 'pointerdown', 'resize', 'keydown'].forEach((ev) => addEventListener(ev, wake, { passive: true }));
 
     intro(() => {
       R.build();
-      requestAnimationFrame(loop);
+      wake();
       G.autoStart();
     });
   }
