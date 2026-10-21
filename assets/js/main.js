@@ -101,7 +101,7 @@
 
     document.title = `${W.lei} & ${W.lui} · Save the Date`;
     $$('[data-mono]').forEach((el) => (el.textContent = `${W.lei[0]}&${W.lui[0]}`));
-    $$('[data-mono-small]').forEach((el) => (el.textContent = `${W.lei[0]} · ${W.lui[0]}`));
+    $$('[data-mono-seal]').forEach((el) => (el.textContent = `${W.lui[0]}${W.lei[0]}`));
   }
 
   /* ------------------------------------------------------------------
@@ -286,7 +286,7 @@
   /* ------------------------------------------------------------------
      Petali che scendono piano nell'hero
      ------------------------------------------------------------------ */
-  const PETAL_COLORS = ['#ffffff', '#f6f1e8', '#c9d6e3', '#8ea8c3', '#e6d2b0'];
+  const PETAL_COLORS = ['#ffffff', '#fffaf1', '#f4ece0', '#dde7f1', '#ece0c8'];
   const drawPetal = (ctx, s) => {
     ctx.beginPath();
     ctx.moveTo(0, -s);
@@ -314,13 +314,14 @@
         vy: Math.random() * .35 + .15, vx: (Math.random() - .5) * .2,
         rot: Math.random() * 6.28, vr: (Math.random() - .5) * .01,
         a: Math.random() * .45 + .25, p: Math.random() * 6.28,
-        c: PETAL_COLORS[2 + Math.floor(Math.random() * 3)],
+        c: PETAL_COLORS[Math.floor(Math.random() * 3)],
       }));
     };
 
     const loop = (t) => {
       raf = 0;
       if (!visible()) return; // fuori schermo il ciclo si ferma del tutto
+      if (idleFor() > 9000 && t > 12000) return; // se nessuno scorre da un po', i petali si fermano dove sono
       if (t - lastDraw < 30) { raf = requestAnimationFrame(loop); return; } // petali lenti: 30 fotogrammi al secondo bastano
       lastDraw = t;
       {
@@ -344,11 +345,211 @@
     const start = () => { if (!raf && !reduced) raf = requestAnimationFrame(loop); };
 
     new IntersectionObserver(([e]) => { inView = e.isIntersecting; if (visible()) start(); }).observe(hero);
+    addEventListener('scroll', () => { if (visible()) start(); }, { passive: true });
     document.addEventListener('visibilitychange', () => { if (visible()) start(); });
     addEventListener('resize', resize);
     resize();
     start();
   }
+
+  /* ------------------------------------------------------------------
+     Illustrazioni: rametti d'ulivo con fiori bianchi, fiocchi di raso,
+     il cortile ad archi, il paesaggio del prato e la porta d'ingresso
+     ------------------------------------------------------------------ */
+  // generatore pseudo-casuale con seme: gli stessi rametti a ogni visita
+  const seeded = (seed) => () => ((seed = (seed * 9301 + 49297) % 233280) / 233280);
+  const f1 = (v) => v.toFixed(1);
+
+  // punti lungo una curva di Bézier quadratica
+  const qcurve = (x0, y0, cx, cy, x1, y1, n = 14) => Array.from({ length: n + 1 }, (_, i) => {
+    const t = i / n, u = 1 - t;
+    return [u * u * x0 + 2 * u * t * cx + t * t * x1, u * u * y0 + 2 * u * t * cy + t * t * y1];
+  });
+  // punti lungo un arco di cerchio (angoli in gradi)
+  const arc = (cx, cy, r, a0, a1, n = 18) => Array.from({ length: n + 1 }, (_, i) => {
+    const a = (a0 + (a1 - a0) * i / n) * Math.PI / 180;
+    return [cx + r * Math.cos(a), cy + r * Math.sin(a)];
+  });
+
+  // Tutte le foglie dello stesso colore finiscono in un unico tracciato (e così i petali):
+  // pochi elementi SVG invece di centinaia, il browser li disegna una volta e basta.
+  const leafD = (x, y, ang, len) => {
+    const c = Math.cos(ang), n = Math.sin(ang), w = len * .2;
+    const mx = x + c * len * .45, my = y + n * len * .45;
+    return `M${f1(x)} ${f1(y)}Q${f1(mx + n * w)} ${f1(my - c * w)} ${f1(x + c * len)} ${f1(y + n * len)}Q${f1(mx - n * w)} ${f1(my + c * w)} ${f1(x)} ${f1(y)}Z`;
+  };
+  const dotD = (x, y, r) => `M${f1(x - r)} ${f1(y)}a${f1(r)} ${f1(r)} 0 1 0 ${f1(2 * r)} 0a${f1(r)} ${f1(r)} 0 1 0 ${f1(-2 * r)} 0Z`;
+  const petalsD = (x, y, s, rot) => [0, 72, 144, 216, 288].map((a) => {
+    const at = (deg, d) => [x + Math.cos((deg - 90) * Math.PI / 180) * d, y + Math.sin((deg - 90) * Math.PI / 180) * d];
+    const [lx, ly] = at(a + rot - 32, s * 1.05), [tx, ty] = at(a + rot, s * 1.2), [rx, ry] = at(a + rot + 32, s * 1.05);
+    return `M${f1(x)} ${f1(y)}Q${f1(lx)} ${f1(ly)} ${f1(tx)} ${f1(ty)}Q${f1(rx)} ${f1(ry)} ${f1(x)} ${f1(y)}Z`;
+  }).join('');
+
+  // un rametto d'ulivo lungo una spezzata: foglie strette alternate, fiorellini e boccioli
+  function olive(pts, { leaf = 18, gap = 12, flowers = 2, buds = 3, seed = 7, stem = 1.3, fl = 6 } = {}) {
+    const rnd = seeded(seed);
+    const samp = [];
+    for (let i = 0; i < pts.length - 1; i++) {
+      const [x0, y0] = pts[i], [x1, y1] = pts[i + 1];
+      const n = Math.max(1, Math.round(Math.hypot(x1 - x0, y1 - y0) / gap));
+      for (let k = 0; k < n; k++) samp.push([x0 + (x1 - x0) * k / n, y0 + (y1 - y0) * k / n, Math.atan2(y1 - y0, x1 - x0)]);
+    }
+    const COL = ['#6c7c53', '#7b8b5f', '#8e9d72', '#a5b28c'];
+    const byCol = COL.map(() => []);
+    samp.forEach(([x, y, a], i) => {
+      const t = i / samp.length; // 0 alla base, 1 in punta
+      [-1, 1].forEach((side) => {
+        if (rnd() < .15) return;
+        const len = leaf * (1.05 - t * .5) * (.75 + rnd() * .45);
+        const ang = a + side * (28 + rnd() * 26) * Math.PI / 180;
+        byCol[(rnd() * COL.length) | 0].push(leafD(x, y, ang, len));
+      });
+    });
+    const [ex, ey] = pts[pts.length - 1];
+    byCol[1].push(leafD(ex, ey, samp.length ? samp[samp.length - 1][2] : 0, leaf * .85));
+    let petals = '', hearts = '', buds_ = '';
+    for (let k = 0; k < flowers; k++) {
+      const [x, y] = samp[(rnd() * samp.length * .85) | 0] || pts[0];
+      const fx = x + (rnd() - .5) * 16, fy = y + (rnd() - .5) * 16, sz = fl * (.8 + rnd() * .5) * .62;
+      petals += petalsD(fx, fy, sz, rnd() * 72);
+      hearts += dotD(fx, fy, sz * .36);
+    }
+    for (let k = 0; k < buds; k++) {
+      const [x, y] = samp[(rnd() * samp.length) | 0] || pts[0];
+      buds_ += dotD(x + (rnd() - .5) * 18, y + (rnd() - .5) * 18, 1.6 + rnd() * 1.4);
+    }
+    const d = 'M' + pts.map(([x, y]) => `${f1(x)} ${f1(y)}`).join('L');
+    return `<g><path d="${d}" fill="none" stroke="#8a8d66" stroke-width="${stem}" stroke-linecap="round" stroke-linejoin="round"/>` +
+      byCol.map((ds, i) => (ds.length ? `<path d="${ds.join('')}" fill="${COL[i]}"/>` : '')).join('') +
+      (petals ? `<path d="${petals}" fill="#fffdf6" stroke="#e4d8bf" stroke-width=".5"/><path d="${hearts}" fill="#e2c36a"/>` : '') +
+      (buds_ ? `<path d="${buds_}" fill="#fffaf0" stroke="#e4d8bf" stroke-width=".5"/>` : '') + '</g>';
+  }
+
+  // fiocco di raso azzurro (centro in x,y)
+  const bowSVG = (x, y, s = 1) => `<g transform="translate(${x} ${y}) scale(${s})">
+    <path d="M-2 4 C -8 18, -14 30, -22 44 L -13 41 L -9 48 C -3 34, 2 20, 3 6 Z" fill="#8aa5c3"/>
+    <path d="M2 4 C 8 18, 15 29, 24 42 L 15 40 L 11 47 C 4 33, -1 19, -3 6 Z" fill="#9db6d0"/>
+    <path d="M0 0 C -10 -18, -34 -22, -33 -6 C -32 8, -10 8, 0 0 Z" fill="url(#satin)" stroke="#7f9bbb" stroke-width=".6"/>
+    <path d="M0 0 C 10 -18, 34 -22, 33 -6 C 32 8, 10 8, 0 0 Z" fill="url(#satin)" stroke="#7f9bbb" stroke-width=".6"/>
+    <path d="M-2 -1 C -10 -10, -22 -13, -27 -7 M2 -1 C 10 -10, 22 -13, 27 -7" fill="none" stroke="#e7eff7" stroke-width="1.6" stroke-linecap="round" opacity=".8"/>
+    <ellipse rx="5.5" ry="6.5" fill="#8aa5c3"/></g>`;
+
+  // i rametti preimpostati, disegnati negli <svg data-olive="...">
+  const SPRIGS = {
+    corner: () =>
+      olive(qcurve(-6, 24, 120, 40, 250, 196, 20), { leaf: 26, gap: 13, flowers: 4, buds: 4, seed: 3, stem: 1.8, fl: 9 }) +
+      olive(qcurve(70, 40, 120, -4, 190, 10, 9), { leaf: 20, flowers: 2, seed: 11, fl: 8 }) +
+      olive(qcurve(40, 30, 30, 120, 70, 230, 12), { leaf: 22, flowers: 3, seed: 5, fl: 8 }) +
+      olive(qcurve(150, 96, 200, 70, 290, 80, 9), { leaf: 18, flowers: 2, seed: 19, fl: 7 }),
+    side: () =>
+      olive(qcurve(20, 205, 70, 90, 200, 24, 16), { leaf: 22, flowers: 3, buds: 3, seed: 9, fl: 8, stem: 1.5 }) +
+      olive(qcurve(80, 120, 140, 120, 196, 150, 8), { leaf: 17, flowers: 1, seed: 21, fl: 7 }),
+    garland: () => {
+      // sull'arco della porta: lungo a sinistra, più corto a destra
+      const L = [...arc(200, 250, 142, -86, -180, 22), [58, 330], [54, 420], [64, 470]];
+      const R = arc(200, 250, 142, -94, -20, 14);
+      return olive(L, { leaf: 24, gap: 10, flowers: 9, buds: 8, seed: 4, stem: 1.6, fl: 9 }) +
+        olive(R, { leaf: 22, gap: 10, flowers: 5, buds: 5, seed: 8, stem: 1.5, fl: 8 }) +
+        olive(qcurve(120, 132, 80, 150, 70, 210, 8), { leaf: 20, flowers: 2, seed: 13, fl: 8 }) +
+        olive(qcurve(300, 150, 340, 170, 352, 230, 8), { leaf: 18, flowers: 2, seed: 17, fl: 7 });
+    },
+    wreath: () =>
+      // ghirlanda sotto il ritratto, con il fiocco in basso
+      olive(arc(120, 120, 104, 200, 92, 14), { leaf: 20, gap: 10, flowers: 4, buds: 3, seed: 6, fl: 8 }) +
+      olive(arc(120, 120, 104, -20, 88, 14), { leaf: 20, gap: 10, flowers: 4, buds: 3, seed: 12, fl: 8 }) +
+      bowSVG(120, 222, .8),
+  };
+
+  // cortile ad archi con i cipressi (in fondo alla prima schermata)
+  function villa() {
+    const cyp = (x, base, h, w) => `<path d="M${x} ${base}C${x - w} ${base - h * .3} ${x - w * .55} ${base - h * .85} ${x} ${base - h}C${x + w * .55} ${base - h * .85} ${x + w} ${base - h * .3} ${x} ${base}Z" fill="#7a8a62"/><path d="M${x} ${base}C${x + w} ${base - h * .3} ${x + w * .55} ${base - h * .85} ${x} ${base - h}Z" fill="#91a079" opacity=".7"/>`;
+    const bush = (x, y, r, seed) => {
+      const rnd = seeded(seed);
+      let g = `<ellipse cx="${x}" cy="${y}" rx="${r}" ry="${r * .62}" fill="#9fae86"/><ellipse cx="${x - r * .3}" cy="${y - r * .2}" rx="${r * .6}" ry="${r * .4}" fill="#b2bf9a"/>`;
+      let dots = '';
+      for (let k = 0; k < r * 1.1; k++) dots += dotD(x + (rnd() - .5) * r * 1.7, y + (rnd() - .6) * r * .9, 1.2 + rnd() * 1.4);
+      return g + `<path d="${dots}" fill="#fffdf6"/>`;
+    };
+    let arches = '', win = '';
+    for (let i = 0; i < 5; i++) {
+      const x = 176 + i * 42;
+      arches += `<path d="M${x} 168V140A17 17 0 0 1 ${x + 34} 140V168Z" fill="#d9c8a9"/><path d="M${x + 3} 168V141A14 14 0 0 1 ${x + 31} 141V146C${x + 20} 140 ${x + 10} 146 ${x + 3} 158Z" fill="#c9b691" opacity=".55"/>`;
+      win += `<rect x="${x + 12}" y="101" width="10" height="14" rx="5" fill="#dccbad"/>`;
+    }
+    return `
+      <path d="M0 170H400V200H0Z" fill="#f1e8d8"/>
+      <g opacity=".75"><ellipse cx="150" cy="96" rx="40" ry="24" fill="#cfd6c0"/><ellipse cx="395" cy="94" rx="36" ry="26" fill="#cfd6c0"/><ellipse cx="365" cy="104" rx="26" ry="18" fill="#c3cbb1"/></g>
+      ${cyp(28, 172, 112, 13)}${cyp(52, 172, 140, 15)}${cyp(78, 172, 122, 13)}${cyp(104, 170, 92, 11)}${cyp(384, 170, 86, 11)}
+      <path d="M128 170V112L166 96V170Z" fill="#e8dcc6"/><path d="M134 170V146A8 8 0 0 1 150 146V170Z M154 170V142A6 6 0 0 1 162 142V170Z" fill="#d7c6a6"/>
+      <path d="M160 90H400V96H160Z" fill="#dcc2a3"/><path d="M164 90L176 83H392L400 90Z" fill="#e2ccb0"/>
+      <rect x="166" y="96" width="234" height="74" fill="#f3eadb"/>
+      <path d="M166 124H400" stroke="#e3d5bc" stroke-width="2"/>
+      <rect x="252" y="58" width="58" height="38" fill="#f3eadb"/><path d="M247 59H315L305 50H257Z" fill="#dcc2a3"/>
+      <path d="M262 92V74A5 5 0 0 1 272 74V92Z M276 92V74A5 5 0 0 1 286 74V92Z M290 92V74A5 5 0 0 1 300 74V92Z" fill="#dccbad"/>
+      ${win}${arches}
+      ${bush(140, 172, 16, 3)}${bush(196, 176, 14, 5)}${bush(300, 178, 16, 7)}${bush(386, 176, 18, 9)}
+      <path d="M182 200L232 170H262L300 200Z" fill="#ece2d0"/>
+      <path d="M14 200C40 188 70 186 96 192L110 200Z" fill="#e9dfcc" opacity=".8"/>`;
+  }
+
+  // paesaggio ad acquerello per il gioco del riporto
+  function landscape() {
+    const cyp = (x, base, h, w) => `<path d="M${x} ${base}C${x - w} ${base - h * .3} ${x - w * .55} ${base - h * .85} ${x} ${base - h}C${x + w * .55} ${base - h * .85} ${x + w} ${base - h * .3} ${x} ${base}Z" fill="#7d8d65"/>`;
+    const rnd = seeded(31);
+    let flowers = '';
+    for (let k = 0; k < 70; k++) flowers += dotD(rnd() * 800, 250 + rnd() * 70, 1.4 + rnd() * 2);
+    flowers = `<path d="${flowers}" fill="#fffdf6" opacity=".85"/>`;
+    let posts = '';
+    for (let x = 20; x < 800; x += 86) posts += `<rect x="${x}" y="196" width="8" height="52" rx="2" fill="#fbf8f1"/><rect x="${x + 6}" y="196" width="2" height="52" fill="#e3ddd0"/>`;
+    return `
+      <defs><linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#dbe5ee"/><stop offset=".55" stop-color="#f1ede2"/><stop offset="1" stop-color="#f4efe4"/></linearGradient>
+      <linearGradient id="meadow" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#c3cca7"/><stop offset="1" stop-color="#a9b78c"/></linearGradient></defs>
+      <rect width="800" height="320" fill="url(#sky)"/>
+      <path d="M0 170C120 140 220 150 320 160C440 172 540 128 660 132C730 134 770 146 800 150V240H0Z" fill="#d6dcc7"/>
+      <g opacity=".9">${cyp(90, 168, 70, 8)}${cyp(108, 166, 86, 9)}${cyp(126, 168, 64, 8)}${cyp(268, 158, 58, 7)}${cyp(282, 157, 76, 8)}${cyp(296, 158, 52, 7)}${cyp(520, 150, 70, 8)}${cyp(536, 148, 88, 9)}${cyp(740, 150, 66, 8)}</g>
+      <g opacity=".75"><ellipse cx="350" cy="160" rx="34" ry="16" fill="#bcc7a6"/><ellipse cx="610" cy="152" rx="40" ry="18" fill="#bcc7a6"/><ellipse cx="190" cy="168" rx="30" ry="14" fill="#c4ceaf"/></g>
+      <g transform="translate(-170 4)"><path d="M612 136H690V160H612Z" fill="#f3eadb"/><path d="M606 137L651 124L696 137Z" fill="#dcc2a3"/><rect x="638" y="114" width="20" height="16" fill="#f3eadb"/><path d="M635 115H661L655 109H641Z" fill="#dcc2a3"/>
+      <path d="M622 160V150A4 4 0 0 1 630 150V160Z M638 160V150A4 4 0 0 1 646 150V160Z M654 160V150A4 4 0 0 1 662 150V160Z" fill="#dccbad"/></g>
+      <path d="M0 200C160 186 300 196 420 190C560 182 680 192 800 186V260H0Z" fill="#c8d1b0"/>
+      <g opacity=".85"><ellipse cx="300" cy="186" rx="44" ry="20" fill="#aab894"/><ellipse cx="470" cy="182" rx="34" ry="16" fill="#b4c09d"/></g>
+      <rect x="0" y="206" width="800" height="6" fill="#fbf8f1"/><rect x="0" y="226" width="800" height="6" fill="#fbf8f1"/>
+      ${posts}
+      <path d="M0 240C200 228 420 236 800 230V320H0Z" fill="url(#meadow)"/>
+      ${flowers}`;
+  }
+
+  // la scena della porta: muro, lanterna, vasi con ulivo e fiori, pavimento
+  function introSet() {
+    const pot = (x, flip) => `<g transform="translate(${x} 600) scale(${flip ? -1 : 1} 1)">
+        <path d="M-34 100C-42 70 -40 40 -30 20H30C40 40 42 70 34 100Z" fill="#dccbaf"/><path d="M-34 100C-42 70 -40 40 -30 20H-6C-14 40 -16 70 -12 100Z" fill="#efe4d1" opacity=".8"/>
+        <path d="M14 22C24 44 26 74 20 100H34C42 70 40 40 30 20Z" fill="#c9b694" opacity=".6"/>
+        <rect x="-36" y="12" width="72" height="12" rx="4" fill="#d3c09f"/><path d="M-28 62H28" stroke="#cdb995" stroke-width="2"/>
+        ${olive(qcurve(0, 12, -10, -40, -30, -88, 8), { leaf: 18, flowers: 3, buds: 2, seed: 41, fl: 7 })}
+        ${olive(qcurve(0, 12, 14, -30, 34, -70, 7), { leaf: 17, flowers: 3, buds: 2, seed: 43, fl: 7 })}
+        ${olive(qcurve(0, 12, 0, -50, 6, -104, 8), { leaf: 16, flowers: 2, buds: 2, seed: 47, fl: 7 })}</g>`;
+    return `
+      <path d="M0 640H400V700H0Z" fill="#e9dcc6"/>
+      <path d="M0 652H400M0 672H400M60 640L40 700M150 640L140 700M250 640L262 700M340 640L362 700" stroke="#dccdb2" stroke-width="1.2"/>
+      <g transform="translate(26 300)">
+        <path d="M14 0V-14" stroke="#7d7466" stroke-width="2"/><path d="M0 4H28L24 0H4Z" fill="#8a8072"/>
+        <rect x="3" y="4" width="22" height="40" rx="2" fill="#f7ecd4" stroke="#8a8072" stroke-width="2.4"/>
+        <ellipse cx="14" cy="26" rx="4" ry="7" fill="#ffe7b0"/><circle cx="14" cy="26" r="13" fill="#ffe2a6" opacity=".25"/>
+        <path d="M0 46H28L24 52H4Z" fill="#8a8072"/></g>
+      ${pot(36, false)}${pot(364, true)}
+      <g fill="#fffdf6" opacity=".9"><ellipse cx="150" cy="676" rx="4" ry="2.4" transform="rotate(20 150 676)"/><ellipse cx="236" cy="684" rx="3.6" ry="2.2" transform="rotate(-30 236 684)"/><ellipse cx="300" cy="668" rx="3.4" ry="2" transform="rotate(50 300 668)"/></g>`;
+  }
+
+  function drawArt() {
+    $$('[data-olive]').forEach((svg) => { const f = SPRIGS[svg.dataset.olive]; if (f) svg.innerHTML = f(); });
+    $$('[data-villa]').forEach((svg) => (svg.innerHTML = villa()));
+    $$('[data-landscape]').forEach((svg) => (svg.innerHTML = landscape()));
+    $$('[data-intro-set]').forEach((svg) => (svg.innerHTML = introSet()));
+  }
+
+  // ritratto del cane in cornice dorata (foto vera, oppure il disegno se manca)
+  const frame = (c, cls = '') => `<span class="frame ${cls}">${c.foto
+    ? `<img src="${esc(c.foto)}" alt="" loading="lazy">`
+    : dogSit(c)}</span>`;
 
   /* ------------------------------------------------------------------
      2. I portafedi: le schede dei cani
@@ -357,26 +558,27 @@
     const wrap = $('#pupCards');
     wrap.innerHTML = DOGS.map((c, i) => `
       <article class="pup pup--${i}" data-pup="${i}">
-        <button class="pup__art" type="button" aria-label="Fai una carezza a ${esc(c.nome)}">
-          ${c.ritratto
-            ? `<img class="pup__portrait" src="${esc(c.ritratto)}" alt="${esc(c.nome)}" loading="lazy">`
-            : c.foto ? '' : dogSit(c)}
-          ${c.foto ? `<img class="pup__photo${c.ritratto ? ' pup__photo--peek' : ''}" src="${esc(c.foto)}" alt="${c.ritratto ? '' : esc(c.nome)}" loading="lazy">` : ''}
-          <span class="pup__bubble" aria-hidden="true">Bau!</span>
-        </button>
-        <svg class="pup__rosette" viewBox="0 0 100 130" aria-hidden="true">
-          <path d="M36 60 L22 126 L36 116 L46 128 L52 64 Z" fill="${RIBBON_DEEP}"/><path d="M64 60 L78 126 L64 116 L54 128 L48 64 Z" fill="${RIBBON}"/>
-          <circle cx="50" cy="50" r="44" fill="none" stroke="${RIBBON}" stroke-width="9" stroke-dasharray="3.4 1.8"/>
-          <circle cx="50" cy="50" r="38" fill="${RIBBON}"/><circle cx="50" cy="50" r="27" fill="#f6f1e8"/>
-          <text x="50" y="58" text-anchor="middle" font-family="Cormorant Garamond, serif" font-size="26" font-style="italic" fill="${RIBBON_DEEP}">${i + 1}°</text>
-        </svg>
+        <div class="pup__top">
+          <button class="pup__art" type="button" aria-label="Fai una carezza a ${esc(c.nome)}">
+            ${frame(c, 'frame--pup')}
+            ${c.ritratto ? `<img class="pup__drawing" src="${esc(c.ritratto)}" alt="" loading="lazy">` : ''}
+            <span class="pup__bubble" aria-hidden="true">Bau!</span>
+          </button>
+          <svg class="pup__wreath" viewBox="0 0 240 240" aria-hidden="true">${SPRIGS.wreath()}</svg>
+          <svg class="pup__rosette" viewBox="0 0 100 130" aria-hidden="true">
+            <path d="M36 60 L24 124 L36 114 L46 126 L52 64 Z" fill="#7f9bbb"/><path d="M64 60 L76 124 L64 114 L54 126 L48 64 Z" fill="#9db6d0"/>
+            <circle cx="50" cy="50" r="44" fill="none" stroke="#9db6d0" stroke-width="9" stroke-dasharray="3.4 1.8"/>
+            <circle cx="50" cy="50" r="38" fill="#a9c0d8"/><circle cx="50" cy="50" r="28" fill="#fbf7ef" stroke="#c9a96e" stroke-width="1.6"/>
+            <text x="50" y="59" text-anchor="middle" font-family="Cormorant Garamond, serif" font-size="26" font-style="italic" fill="#2f4468">${i + 1}°</text>
+          </svg>
+        </div>
         <div class="pup__body">
           <p class="pup__role">${c.razza ? `${esc(c.razza)} · ` : ''}Portafedi ufficiale</p>
           <h3 class="pup__name">${esc(c.nome)}</h3>
           <dl class="pup__facts">
             <div><dt>Porterà</dt><dd>${esc(c.porta || '')}</dd></div>
             <div><dt>Segni particolari</dt><dd>${esc(c.segni || '')}</dd></div>
-            <div><dt>Talento</dt><dd>${esc(c.talento || '')}</dd></div>
+            <div><dt>Superpotere</dt><dd>${esc(c.superpotere || c.talento || '')}</dd></div>
           </dl>
         </div>
       </article>`).join('');
@@ -390,7 +592,7 @@
         const r = art.getBoundingClientRect();
         Petals.hearts(r.left + r.width / 2, r.top + r.height * .3, 7);
         clearTimeout(card._t);
-        card._t = setTimeout(() => card.classList.remove('is-happy'), card.querySelector('.pup__photo--peek') ? 2600 : 1600);
+        card._t = setTimeout(() => card.classList.remove('is-happy'), card.querySelector('.pup__drawing') ? 2600 : 1600);
       });
     });
   }
@@ -439,9 +641,10 @@
     const line = $('#line');
     line.innerHTML = W.foto.map((f, i) => `
       <figure class="photo" style="--r:${((i * 37) % 7) - 3}">
+        ${i % 2 === 0 ? `<svg class="photo__sprig photo__sprig--${i % 4 ? 'r' : 'l'}" viewBox="0 0 220 220" aria-hidden="true">${SPRIGS.side()}</svg>` : ''}
         <div class="photo__hang">
           <div class="photo__sway">
-            <span class="tie" aria-hidden="true"></span>
+            <svg class="tie" viewBox="-40 -30 80 80" aria-hidden="true">${bowSVG(0, 0, 1)}</svg>
             <div class="photo__frame">
               <div class="photo__img"><img src="${esc(f.src)}" alt="${esc(f.didascalia || '')}" loading="lazy" decoding="async"></div>
               <figcaption>${esc(f.didascalia || '')}</figcaption>
@@ -517,6 +720,27 @@
 
     const lineTop = lr.top - mainRect.top;
     const pts = [];
+
+    // una foto per riga (telefono): il nastro scende passando per i fiocchi, ondeggiando
+    if (rows.every((r) => r.items.length === 1)) {
+      const mid = (left + right) / 2, sway = (right - left) * .3;
+      pts.push([mid + sway, lineTop + rows[0].top - 70]);
+      rows.forEach((row, ri) => {
+        const ph = row.items[0];
+        const cx = lr.left - mainRect.left + ph.offsetLeft + ph.offsetWidth / 2;
+        const y = lineTop + row.top - 4;
+        pts.push([cx, y]);
+        if (ri < rows.length - 1) {
+          const next = lineTop + rows[ri + 1].top;
+          pts.push([ri % 2 ? left + 6 : right - 6, y + (next - y) * .55]);
+        }
+        ph.style.setProperty('--sag', '0px');
+      });
+      const last = rows[rows.length - 1].items[0];
+      pts.push([mid, lineTop + last.offsetTop + last.offsetHeight + 60]);
+      return pts;
+    }
+
     const sag = clamp((right - left) * 0.06, 24, 70);
     const bend = clamp((right - left) * 0.03, 14, 36); // raggio delle curve a fine riga
     rows.forEach((row, ri) => {
@@ -758,6 +982,7 @@
       else r.remove();
     });
     const team = runners.filter((r) => r.isConnected);
+    tags.forEach((tag, i) => tag.insertAdjacentHTML('afterbegin', `<svg class="tag__sprig tag__sprig--${i % 2 ? 'r' : 'l'}" viewBox="0 0 220 220" aria-hidden="true">${SPRIGS.side()}</svg>`));
     let throws = 0, busy = false, won = false;
 
     const flip = (i) => {
@@ -878,6 +1103,19 @@
     ball.addEventListener('pointerup', releaseBall);
     ball.addEventListener('pointercancel', () => { drag = null; ball.style.transform = ''; });
     ball.addEventListener('click', (e) => { if (e.detail === 0) throwBall(); }); // tastiera
+
+    // si può lanciare anche toccando una medaglietta: prima si porta il prato in vista
+    const fromTag = () => {
+      if (busy || won) return;
+      const r = paddock.getBoundingClientRect();
+      if (r.top >= 0 && r.bottom <= innerHeight) return throwBall();
+      Glide.to(r.top + scrollY - (innerHeight - r.height) * .6, 900);
+      setTimeout(throwBall, reduced ? 0 : 950);
+    };
+    tags.forEach((tag) => {
+      tag.addEventListener('click', fromTag);
+      tag.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fromTag(); } });
+    });
 
     $('#revealAll').addEventListener('click', () => {
       throws = tags.length;
@@ -1081,7 +1319,9 @@
      ------------------------------------------------------------------ */
   function finale() {
     const scene = $('#finaleScene');
-    [0, 1].forEach((i) => { if (DOGS[i]) $(`#finaleDog${i}`).innerHTML = dogSit(DOGS[i]); });
+    [0, 1].forEach((i) => {
+      if (DOGS[i]) $(`#finaleDog${i}`).innerHTML = frame(DOGS[i], 'frame--finale');
+    });
     let arrived = false;
     const arrive = () => {
       if (arrived) return;
@@ -1186,7 +1426,7 @@
     try { found = new Set(JSON.parse(localStorage.getItem(KEY) || '[]')); } catch (_) { /* ok */ }
     let toastTimer = 0;
 
-    $('#secretDogs').innerHTML = DOGS.slice(0, 2).map((c) => dogSit(c)).join('');
+    $('#secretDogs').innerHTML = DOGS.slice(0, 2).map((c) => frame(c, 'frame--secret')).join('');
     $('#secretText').textContent = (W.ossi && W.ossi.messaggio) || '';
     $('#secretPrize').textContent = (W.ossi && W.ossi.premio) || '';
 
@@ -1274,6 +1514,7 @@
   function init() {
     lockHeroHeight();
     bindConfig();
+    drawArt();
     splitLetters();
     pups();
     const eyes = eyesFollow();
