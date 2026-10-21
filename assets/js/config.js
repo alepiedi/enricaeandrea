@@ -23,9 +23,9 @@ window.WEDDING = {
   },
 
   // I due cani portafedi.
-  // ritratto: disegno del cane (PNG con lo sfondo trasparente) per la scheda
-  // foto: foto vera, compare quando si tocca il cane nella scheda
-  // colori e orecchie ('giu' o 'su'): per il cane disegnato nel riporto, nel finale e nel messaggio segreto
+  // foto: foto vera del muso, nella cornice dorata (scheda e finale)
+  // ritratto: il disegno del cane, compare quando lo si tocca nella scheda
+  // colori e orecchie ('giu' o 'su'): per il cane disegnato che corre nel gioco del riporto e porta la lettera
   cani: [
     {
       nome: 'Giotto',
@@ -33,8 +33,8 @@ window.WEDDING = {
       ritratto: 'assets/img/cani/giotto-ritratto.png',
       foto: 'assets/img/cani/giotto-foto.jpg',
       porta: 'la fede di Enrica',
-      segni: 'Coda che non si ferma mai',
-      talento: 'Trovare qualcosa da mangiare ovunque, anche dove non c’è',
+      segni: 'Una coda che racconta tutta la sua felicità.',
+      superpotere: 'Trovare la felicità. E, se possibile, anche qualcosa da mangiare.',
       colori: { pelo: '#e8cd9a', muso: '#f6e9cf', orecchie: '#d6b276', macchia: '' },
       orecchie: 'giu',
     },
@@ -44,8 +44,8 @@ window.WEDDING = {
       ritratto: 'assets/img/cani/penelope-ritratto.png',
       foto: 'assets/img/cani/penelope-foto.jpg',
       porta: 'la fede di Andrea',
-      segni: 'Bianca e grigia, con un cuore enorme',
-      talento: 'Chiedere coccole. E ottenerle, sempre',
+      segni: 'Un cuore immenso, nascosto in due occhi irresistibili.',
+      superpotere: 'Trasformare ogni richiesta di coccole in un ordine impossibile da rifiutare.',
       colori: { pelo: '#6d717c', muso: '#ffffff', orecchie: '#5b5f6a', macchia: '' },
       orecchie: 'su',
     },
@@ -69,15 +69,15 @@ window.WEDDING = {
 
   // Foto appese al nastro (consigliato: 6–8 foto verticali, ~1000px di lato lungo)
   foto: [
-    { src: 'assets/img/photos/01-prima-foto-2012.jpg', didascalia: 'La nostra prima foto insieme, nel lontano 2012' },
-    { src: 'assets/img/photos/02-al-mare.jpg', didascalia: 'Baci salati' },
+    { src: 'assets/img/photos/01-prima-foto-2012.jpg', didascalia: 'Quando tutto era ancora da scrivere.' },
+    { src: 'assets/img/photos/02-al-mare.jpg', didascalia: 'E sceglierei ancora te.' },
     { src: 'assets/img/photos/03-al-lago.jpg', didascalia: 'Gite fuori porta' },
     { src: 'assets/img/photos/04-stessa-fede.jpg', didascalia: 'La stessa fede (giallorossa)' },
     { src: 'assets/img/photos/05-sottacqua.jpg', didascalia: 'Insieme, anche sott’acqua' },
     { src: 'assets/img/photos/06-viaggio-piu-bello.jpg', didascalia: 'Il viaggio più bello fino ad ora' },
     { src: 'assets/img/photos/07-vista-mare.jpg', didascalia: 'Sempre più in alto' },
     { src: 'assets/img/photos/08-posto-del-cuore.jpg', didascalia: 'Il posto del cuore' },
-    { src: 'assets/img/photos/09-posto-del-cuore-tramonto.jpg', didascalia: 'Il posto del cuore, al tramonto' },
+    { src: 'assets/img/photos/09-posto-del-cuore-tramonto.jpg', didascalia: 'Il mondo è più bello dalla stessa parte.' },
     { src: 'assets/img/photos/10-tutti-e-quattro.jpg', didascalia: 'In viaggio, tutti e quattro' },
     { src: 'assets/img/photos/11-in-tiro.jpg', didascalia: 'Già pronti per il grande giorno' },
     { src: 'assets/img/photos/12-mani-e-zampe.jpg', didascalia: 'Mani e zampe' },

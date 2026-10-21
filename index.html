@@ -4,12 +4,12 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Enrica &amp; Andrea · Save the Date</title>
-  <meta name="description" content="Enrica e Andrea si sposano. Seguite la fede lungo il nastro: i nostri cani sanno dove porta.">
-  <meta name="theme-color" content="#3d4f66">
+  <meta name="description" content="Enrica e Andrea si sposano. Ogni grande storia ha il suo filo: il nostro passa per quattro zampe e due fedi.">
+  <meta name="theme-color" content="#f6efe3">
 
   <meta property="og:type" content="website">
   <meta property="og:title" content="Enrica &amp; Andrea · Save the Date">
-  <meta property="og:description" content="Seguite la fede lungo il nastro azzurro: i nostri cani sanno dove porta.">
+  <meta property="og:description" content="Ogni grande storia ha il suo filo. Il nostro passa per quattro zampe e due fedi.">
   <meta property="og:url" content="https://alepiedi.github.io/enricaeandrea/">
   <meta property="og:image" content="https://alepiedi.github.io/enricaeandrea/assets/img/og-image.jpg">
   <meta property="og:image:width" content="1200">
@@ -20,7 +20,7 @@
   <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Montserrat:wght@400;500;600&family=Parisienne&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Montserrat:wght@400;500;600&family=Parisienne&family=Pinyon+Script&display=swap">
   <link rel="stylesheet" href="assets/css/style.css">
 
   <script src="assets/js/config.js"></script>
@@ -28,50 +28,37 @@
 </head>
 <body class="is-locked">
 
-  <!-- ============ 0. LE PORTE DELLA SCUDERIA ============ -->
+  <!-- ============ 0. LA PORTA AD ARCO, legata col nastro e il sigillo ============ -->
   <div class="intro" id="intro">
-    <div class="barn">
-      <div class="barn__door barn__door--l"><span class="barn__band"></span></div>
-      <div class="barn__door barn__door--r"><span class="barn__band"></span></div>
-      <!-- due nasi curiosi sotto la porta -->
-      <span class="barn__nose barn__nose--a" aria-hidden="true"></span>
-      <span class="barn__nose barn__nose--b" aria-hidden="true"></span>
+    <div class="intro__stage">
+      <!-- muro, lanterna, vasi e pavimento -->
+      <svg class="intro__set" viewBox="0 0 400 700" aria-hidden="true" data-intro-set></svg>
+      <div class="portal" aria-hidden="true">
+        <div class="doorway">
+          <div class="doorway__light"></div>
+          <div class="door door--l"><span class="door__panel door__panel--top"></span><span class="door__panel door__panel--low"></span><span class="door__band"></span></div>
+          <div class="door door--r"><span class="door__panel door__panel--top"></span><span class="door__panel door__panel--low"></span><span class="door__band"></span></div>
+        </div>
+      </div>
+      <!-- ghirlanda d'ulivo e fiori bianchi sull'arco -->
+      <svg class="intro__garland" viewBox="0 0 400 700" aria-hidden="true" data-olive="garland"></svg>
+
+      <button class="bow" id="bow" type="button" aria-label="Tieni premuto il sigillo per aprire l'invito">
+        <svg class="bow__ring" viewBox="0 0 200 200" aria-hidden="true">
+          <circle class="bow__ring-track" cx="100" cy="100" r="94" />
+          <circle class="bow__ring-fill" id="bowRing" cx="100" cy="100" r="94" pathLength="1" />
+        </svg>
+        <svg class="bow__art" viewBox="0 0 200 200" aria-hidden="true">
+          <g class="bow__tail bow__tail--l"><path d="M96 104 C 86 130, 74 158, 58 192 L 76 186 L 84 198 C 96 166, 104 132, 106 108 Z"/></g>
+          <g class="bow__tail bow__tail--r"><path d="M104 104 C 114 130, 128 156, 146 188 L 128 184 L 122 196 C 108 164, 98 132, 94 108 Z"/></g>
+          <g class="bow__loop bow__loop--l"><path d="M100 100 C 78 62, 22 54, 26 88 C 30 120, 80 116, 100 100 Z"/><path class="bow__fold" d="M100 100 C 80 82, 50 76, 38 88"/></g>
+          <g class="bow__loop bow__loop--r"><path d="M100 100 C 122 62, 178 54, 174 88 C 170 120, 120 116, 100 100 Z"/><path class="bow__fold" d="M100 100 C 120 82, 150 76, 162 88"/></g>
+        </svg>
+        <span class="wax" aria-hidden="true"><span class="wax__half wax__half--l"></span><span class="wax__half wax__half--r"></span><span class="wax__mono" data-mono-seal>AE</span></span>
+      </button>
+
+      <p class="intro__hint" id="introHint">Tieni premuto il sigillo</p>
     </div>
-
-    <svg class="horseshoe" viewBox="0 0 120 120" aria-hidden="true">
-      <defs>
-        <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0" stop-color="#f3e3bf"/><stop offset=".45" stop-color="#c9a66b"/>
-          <stop offset=".7" stop-color="#e9d3a4"/><stop offset="1" stop-color="#a8844c"/>
-        </linearGradient>
-      </defs>
-      <path d="M30 18 C 8 40, 10 92, 60 104 C 110 92, 112 40, 90 18" fill="none" stroke="url(#gold)" stroke-width="15" stroke-linecap="round"/>
-      <g fill="#8a6a36" opacity=".55">
-        <circle cx="25" cy="40" r="2.4"/><circle cx="22" cy="60" r="2.4"/><circle cx="30" cy="80" r="2.4"/>
-        <circle cx="95" cy="40" r="2.4"/><circle cx="98" cy="60" r="2.4"/><circle cx="90" cy="80" r="2.4"/>
-      </g>
-    </svg>
-
-    <div class="intro__address">
-      <span class="intro__to">Un invito per te da</span>
-      <span class="intro__from"><span data-bind="lei">Enrica</span> &amp; <span data-bind="lui">Andrea</span></span>
-    </div>
-
-    <button class="bow" id="bow" type="button" aria-label="Tieni premuto il fiocco per scioglierlo e aprire l'invito">
-      <svg class="bow__ring" viewBox="0 0 200 200" aria-hidden="true">
-        <circle class="bow__ring-track" cx="100" cy="100" r="94" />
-        <circle class="bow__ring-fill" id="bowRing" cx="100" cy="100" r="94" pathLength="1" />
-      </svg>
-      <svg class="bow__art" viewBox="0 0 200 160" aria-hidden="true">
-        <g class="bow__tail bow__tail--l"><path d="M94 86 C 84 110, 70 130, 52 152 L 70 156 L 74 142 C 88 122, 98 104, 102 90 Z"/></g>
-        <g class="bow__tail bow__tail--r"><path d="M106 86 C 116 110, 130 130, 148 152 L 130 156 L 126 142 C 112 122, 102 104, 98 90 Z"/></g>
-        <g class="bow__loop bow__loop--l"><path d="M100 80 C 80 46, 22 34, 24 70 C 26 104, 78 98, 100 80 Z"/><path class="bow__fold" d="M100 80 C 82 64, 50 58, 40 70"/></g>
-        <g class="bow__loop bow__loop--r"><path d="M100 80 C 120 46, 178 34, 176 70 C 174 104, 122 98, 100 80 Z"/><path class="bow__fold" d="M100 80 C 118 64, 150 58, 160 70"/></g>
-        <rect class="bow__knot" x="88" y="66" width="24" height="28" rx="9"/>
-      </svg>
-    </button>
-
-    <p class="intro__hint" id="introHint">Tieni premuto il fiocco</p>
   </div>
 
   <!-- osso da cercare: disegnato una volta e riusato nei nascondigli -->
@@ -98,8 +85,8 @@
   </div>
 
   <!-- invito a scendere: compare quando si resta fermi -->
-  <button class="guide" id="guide" type="button" aria-label="Scorri alla parte successiva">
-    <span>Scorri</span><i aria-hidden="true">↓</i>
+  <button class="guide" id="guide" type="button" aria-label="Scopri la parte successiva">
+    <span>Scopri</span><i aria-hidden="true">⌄</i>
   </button>
 
   <!-- petali -->
@@ -112,6 +99,11 @@
         <linearGradient id="ringGold" x1="0" y1="0" x2="1" y2="1">
           <stop offset="0" stop-color="#fff4d8"/><stop offset=".4" stop-color="#d4b27a"/>
           <stop offset=".65" stop-color="#f1dfb5"/><stop offset="1" stop-color="#9d7b45"/>
+        </linearGradient>
+        <!-- raso azzurro per i fiocchi (usato anche dalla porta e dalle polaroid) -->
+        <linearGradient id="satin" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stop-color="#d4e1ee"/><stop offset=".35" stop-color="#9db6d0"/>
+          <stop offset=".6" stop-color="#bfd1e4"/><stop offset="1" stop-color="#7f9bbb"/>
         </linearGradient>
       </defs>
       <!-- la fede: metà passa sotto il nastro, metà sopra -->
@@ -132,86 +124,77 @@
     </svg>
 
     <!-- ============ 1. HERO ============ -->
-    <section class="hero" id="top" data-thread="-0.03,0.30; 0.14,0.36">
+    <section class="hero" id="top" data-thread="-0.03,0.27; 0.08,0.3">
       <canvas class="hero__petals" id="drift" aria-hidden="true"></canvas>
-      <svg class="leaves leaves--tl" viewBox="0 0 220 220" aria-hidden="true"><use href="#eucalyptus"/></svg>
-      <svg class="leaves leaves--br" viewBox="0 0 220 220" aria-hidden="true"><use href="#eucalyptus"/></svg>
+      <svg class="leaf-shadow" viewBox="0 0 320 320" aria-hidden="true" data-olive="corner"></svg>
+      <svg class="sprig sprig--hero" viewBox="0 0 320 320" aria-hidden="true" data-olive="corner"></svg>
 
-      <p class="eyebrow reveal-hero">Save the date · <span data-bind="anno">2027</span></p>
+      <div class="hero__inner">
+        <p class="eyebrow reveal-hero">Save the date</p>
+        <p class="hero__year reveal-hero" data-bind="anno">2027</p>
+        <span class="orn reveal-hero" aria-hidden="true"></span>
 
-      <h1 class="hero__names">
-        <span class="name name--lei" data-split data-bind="lei">Enrica</span>
-        <span class="amp" aria-label="e">&amp;</span>
-        <span class="amp__loop" aria-hidden="true" data-thread="0.0,0.9; 0.5,1.0; 0.95,0.55; 0.55,0.0; 0.12,0.4; 0.55,0.95; 1.3,1.0"></span>
-        <span class="name name--lui" data-split data-bind="lui">Andrea</span>
-      </h1>
+        <h1 class="hero__names">
+          <span class="name name--lei" data-split data-bind="lei">Enrica</span>
+          <span class="amp" aria-label="e">&amp;</span>
+          <span class="amp__loop" aria-hidden="true" data-thread="0.0,0.9; 0.5,1.0; 0.95,0.55; 0.55,0.0; 0.12,0.4; 0.55,0.95; 1.3,1.0"></span>
+          <span class="name name--lui" data-split data-bind="lui">Andrea</span>
+        </h1>
 
-      <p class="hero__tag reveal-hero">Seguite la fede lungo il nastro.<br><em>I nostri cani sanno dove porta.</em></p>
+        <span class="orn orn--heart reveal-hero" aria-hidden="true"></span>
+        <p class="hero__tag reveal-hero">Ogni grande storia <br>ha il suo filo.<br>Il nostro passa <br>per quattro zampe <br>e due fedi.</p>
+        <span class="orn orn--short reveal-hero" aria-hidden="true"></span>
+        <p class="hero__date reveal-hero" data-bind="dataPunti">11 · 09 · 2027</p>
+      </div>
 
+      <svg class="villa" viewBox="0 0 400 200" preserveAspectRatio="xMidYMax meet" aria-hidden="true" data-villa></svg>
       <span class="hero__exit" data-thread="0.5,0.2; 0.5,1"></span>
     </section>
 
-    <!-- foglie di eucalipto (decorazione) -->
-    <svg width="0" height="0" style="position:absolute" aria-hidden="true">
-      <symbol id="eucalyptus" viewBox="0 0 220 220">
-        <path d="M10 10 C 60 50, 110 100, 200 210" fill="none" stroke="#8d9c86" stroke-width="2"/>
-        <g fill="#a9b7a0">
-          <ellipse cx="34" cy="20" rx="13" ry="9" transform="rotate(-20 34 20)"/><ellipse cx="22" cy="40" rx="12" ry="8" transform="rotate(60 22 40)"/>
-          <ellipse cx="66" cy="44" rx="15" ry="10" transform="rotate(-15 66 44)"/><ellipse cx="48" cy="68" rx="14" ry="9" transform="rotate(70 48 68)"/>
-          <ellipse cx="100" cy="80" rx="16" ry="11" transform="rotate(-10 100 80)"/><ellipse cx="80" cy="104" rx="15" ry="10" transform="rotate(75 80 104)"/>
-          <ellipse cx="134" cy="122" rx="15" ry="10" transform="rotate(-5 134 122)"/><ellipse cx="114" cy="142" rx="14" ry="9" transform="rotate(80 114 142)"/>
-          <ellipse cx="164" cy="164" rx="13" ry="9" transform="rotate(5 164 164)"/><ellipse cx="148" cy="182" rx="12" ry="8" transform="rotate(80 148 182)"/>
-        </g>
-        <g fill="#c4cfbd" opacity=".9">
-          <ellipse cx="50" cy="30" rx="8" ry="5" transform="rotate(-30 50 30)"/><ellipse cx="86" cy="62" rx="9" ry="6" transform="rotate(-25 86 62)"/>
-          <ellipse cx="120" cy="100" rx="9" ry="6" transform="rotate(-20 120 100)"/><ellipse cx="152" cy="140" rx="8" ry="5" transform="rotate(-10 152 140)"/>
-        </g>
-      </symbol>
-    </svg>
-
     <!-- ============ 2. I PORTAFEDI ============ -->
     <section class="pups" id="cani">
-      <header class="section-head">
+      <header class="section-head" data-thread="0.985,0.02; 0.985,0.98">
         <p class="kicker">I portafedi</p>
         <h2>Testimoni a quattro zampe</h2>
-        <p class="section-sub">Il giorno del sì le fedi arriveranno con loro. Toccateli: vi mostreranno come sono dal vero.</p>
+        <p class="section-sub">Le nostre promesse viaggeranno su quattro zampe.<br>Perché certi amori non hanno bisogno di parole, ma meritano un posto d’onore.</p>
       </header>
-      <div class="pups__cards" id="pupCards" data-thread="0.5,-0.05; 0.5,0.5; 0.5,1.05"></div>
-      <p class="pups__hint">E occhio: <span data-bind="cane0">Giotto</span> e <span data-bind="cane1">Penelope</span> hanno nascosto tre ossi nel sito. Trovateli!</p>
+      <div class="pups__cards" id="pupCards" data-thread="0.5,-0.05; 0.5,0.5; 0.5,1.02"></div>
+      <p class="pups__hint" data-thread="0,-0.2; 0,1.2"><span class="paw" aria-hidden="true"></span>Pssst… i nostri due complici hanno nascosto tre ossi nel sito.<br>Saprete trovarli tutti?</p>
     </section>
 
     <!-- ============ 3. APPESI A UN NASTRO ============ -->
     <section class="story" id="foto">
-      <header class="section-head">
+      <header class="section-head" data-thread="0.015,0.1; 0.015,1">
         <p class="kicker">Appesi a un nastro</p>
         <h2>La nostra storia</h2>
-        <p class="section-sub">Le polaroid hanno bisogno di qualche secondo: scorrete piano e lasciatele venire fuori.</p>
+        <p class="section-sub">Ci sono fotografie che fermano un istante, e istanti che continuano a vivere per sempre.<br>Scorrete piano: ogni ricordo è un pezzo di strada che ci ha portati fin qui.</p>
       </header>
       <div class="line" id="line" data-thread-gallery></div>
+      <p class="closing" data-thread="0.985,-0.3; 0.985,1.3"><span class="heart" aria-hidden="true">♥</span>Stesse mani, nuovi orizzonti.<br>E ancora tanta vita da scegliere insieme.</p>
     </section>
 
     <!-- ============ 4. IL RIPORTO (data e luogo) ============ -->
-    <section class="fetch" id="data" data-thread="0.985,0.12; 0.5,0.2; 0.03,0.3">
-      <header class="section-head">
+    <section class="fetch" id="data">
+      <header class="section-head" data-thread="0.985,0; 0.985,1">
         <p class="kicker">Data e luogo</p>
         <h2>Lanciate la pallina</h2>
-        <p class="section-sub">Non ve lo diciamo noi: ve lo riportano loro. Tre lanci, tre medagliette.</p>
+        <p class="section-sub">Tre lanci, tre indizi, una promessa.<br>Questa volta saranno <span data-bind="cane0">Giotto</span> e <span data-bind="cane1">Penelope</span> a svelarvi dove e quando comincerà il nostro per sempre.<br>Toccate le medagliette e lasciatevi guidare dal gioco.</p>
       </header>
 
       <div class="tags" id="tags">
-        <div class="tag" data-tag="0">
+        <div class="tag" data-tag="0" role="button" tabindex="0" aria-label="Medaglietta del giorno: lancia la pallina">
           <div class="tag__inner">
             <div class="tag__face tag__face--back"><span class="tag__paw" aria-hidden="true"></span><small>quando</small></div>
             <div class="tag__face tag__face--front"><small>giorno</small><strong data-bind="giorno">11</strong><em data-bind="settimana">sabato</em></div>
           </div>
         </div>
-        <div class="tag" data-tag="1">
+        <div class="tag" data-tag="1" role="button" tabindex="0" aria-label="Medaglietta del mese: lancia la pallina">
           <div class="tag__inner">
             <div class="tag__face tag__face--back"><span class="tag__paw" aria-hidden="true"></span><small>mese</small></div>
             <div class="tag__face tag__face--front tag__face--month"><small>mese</small><strong data-bind="mese">settembre</strong><em data-bind="anno">2027</em></div>
           </div>
         </div>
-        <div class="tag" data-tag="2">
+        <div class="tag" data-tag="2" role="button" tabindex="0" aria-label="Medaglietta del luogo: lancia la pallina">
           <div class="tag__inner">
             <div class="tag__face tag__face--back"><span class="tag__paw" aria-hidden="true"></span><small>dove</small></div>
             <div class="tag__face tag__face--front tag__face--place"><small>dove</small><strong data-bind="luogoBreve">Scuderie San Giorgio</strong><em data-bind="citta">Roma</em></div>
@@ -219,17 +202,20 @@
         </div>
       </div>
 
+      <p class="fetch__line">Loro inseguono la pallina.<br>Noi, da quel giorno, inseguiremo tutti i nostri sogni insieme.</p>
+      <p class="paddock__hint" id="paddockHint">Tocca la pallina (o trascinala e lasciala andare)</p>
+
       <div class="field-wrap">
-        <div class="paddock" id="paddock">
-          <div class="paddock__sky" aria-hidden="true"></div>
-          <div class="paddock__fence" aria-hidden="true"></div>
+        <div class="paddock" id="paddock" data-thread="0.97,0.2; 0.5,0.35; 0.03,0.6">
+          <svg class="paddock__land" viewBox="0 0 800 320" preserveAspectRatio="xMidYMax slice" aria-hidden="true" data-landscape></svg>
           <button class="bone bone--paddock" type="button" data-bone="prato" aria-label="Hai trovato un osso!"><svg viewBox="0 0 120 60" aria-hidden="true"><use href="#boneSvg"/></svg><span class="bone__bubble" aria-hidden="true">Un osso!</span></button>
           <div class="paddock__grass" aria-hidden="true"></div>
           <div class="runner runner--0" id="runner0"></div>
           <div class="runner runner--1" id="runner1"></div>
           <button class="ball" id="ball" type="button" aria-label="Lancia la pallina"></button>
-          <p class="paddock__hint" id="paddockHint">Tocca la pallina (o trascinala e lasciala andare)</p>
         </div>
+        <svg class="sprig sprig--paddock-l" viewBox="0 0 220 220" aria-hidden="true" data-olive="side"></svg>
+        <svg class="sprig sprig--paddock-r" viewBox="0 0 220 220" aria-hidden="true" data-olive="side"></svg>
       </div>
 
       <div class="win" id="win" aria-live="polite">
@@ -241,7 +227,8 @@
         <a class="btn btn--small win__maps" data-bind-href="maps" target="_blank" rel="noopener">Apri in Maps</a>
       </div>
 
-      <button class="link-btn" type="button" id="revealAll">Niente tempo per giocare? Mostratemi data e luogo</button>
+      <p class="closing"><span class="heart" aria-hidden="true">♥</span>Ci sarete anche voi<br>a scrivere questa pagina con noi?</p>
+      <button class="link-btn" type="button" id="revealAll">Niente tempo per giocare? Mostratemi data e luogo.</button>
     </section>
 
     <!-- ============ 5. COUNTDOWN ============ -->
@@ -313,23 +300,10 @@
         <p class="letter__error" id="rsvpError" role="alert" hidden></p>
         <button class="btn btn--send" type="submit" id="rsvpSend">Consegna la risposta</button>
 
-        <!-- coccarda da concorso che si appunta all'invio -->
-        <div class="rosette" aria-hidden="true">
-          <svg viewBox="0 0 200 260">
-            <path d="M74 120 L48 250 L74 232 L92 256 L104 130 Z" fill="#5e7590"/>
-            <path d="M126 120 L152 250 L126 232 L108 256 L96 130 Z" fill="#8ea8c3"/>
-            <g transform="translate(100 100)">
-              <circle r="88" fill="none" stroke="#8ea8c3" stroke-width="14" stroke-dasharray="5 2.5"/>
-              <circle r="84" fill="#8ea8c3"/>
-              <circle r="84" fill="none" stroke="#5e7590" stroke-width="8" stroke-dasharray="6 7"/>
-              <circle r="62" fill="#c9d6e3"/>
-              <circle r="62" fill="none" stroke="#fff" stroke-width="3" stroke-dasharray="2 5"/>
-              <circle r="46" fill="#f6f1e8"/>
-              <text y="-8" text-anchor="middle" font-size="13" letter-spacing="2" fill="#5e7590" font-family="Montserrat, sans-serif" font-weight="600">RISPOSTA</text>
-              <text y="16" text-anchor="middle" font-size="22" fill="#3d4f66" font-family="Cormorant Garamond, serif" font-style="italic" font-weight="600">ricevuta</text>
-              <text y="34" text-anchor="middle" font-size="10" letter-spacing="2" fill="#5e7590" font-family="Montserrat, sans-serif" data-mono-small>E · A</text>
-            </g>
-          </svg>
+        <!-- sigillo di ceralacca che si imprime all'invio -->
+        <div class="stamp" aria-hidden="true">
+          <span class="wax wax--stamp"><span class="wax__mono" data-mono-seal>AE</span></span>
+          <span class="stamp__label">Risposta ricevuta</span>
         </div>
       </form>
 
@@ -344,37 +318,36 @@
       </div>
     </section>
 
-    <!-- ============ 7. FINALE: il nastro arriva ai cani ============ -->
+    <!-- ============ 7. FINALE: la fede arriva nella scatolina e il nastro raggiunge i cani ============ -->
     <footer class="finale" id="fine">
+      <svg class="sprig sprig--finale-l" viewBox="0 0 220 220" aria-hidden="true" data-olive="side"></svg>
+      <svg class="sprig sprig--finale-r" viewBox="0 0 220 220" aria-hidden="true" data-olive="side"></svg>
       <div class="finale__scene" id="finaleScene">
         <div class="finale__dog finale__dog--0" id="finaleDog0"></div>
         <div class="finale__box" id="ringBox" data-thread="0.5,0.08; 0.5,0.38">
           <svg viewBox="0 0 160 130" aria-hidden="true">
-            <!-- coperchio -->
-            <path class="box__lid" d="M22 54 Q 22 14 80 12 Q 138 14 138 54 Z" fill="#7f99b5"/>
-            <path class="box__lid" d="M30 50 Q 32 22 80 20 Q 128 22 130 50 Z" fill="#8ea8c3" opacity=".7"/>
-            <!-- scatola di velluto -->
-            <rect x="16" y="56" width="128" height="62" rx="16" fill="#7f99b5"/>
-            <rect x="24" y="60" width="112" height="30" rx="12" fill="#5e7590"/>
-            <path d="M24 74 Q 80 98 136 74" fill="none" stroke="#9fb6cd" stroke-width="2" opacity=".6"/>
-            <!-- le due fedi -->
+            <path d="M22 54 Q 22 14 80 12 Q 138 14 138 54 Z" fill="#8fa9c5"/>
+            <path d="M30 50 Q 32 22 80 20 Q 128 22 130 50 Z" fill="#a9c0d8" opacity=".75"/>
+            <rect x="16" y="56" width="128" height="62" rx="16" fill="#8fa9c5"/>
+            <rect x="24" y="60" width="112" height="30" rx="12" fill="#6f8db0"/>
+            <path d="M24 74 Q 80 98 136 74" fill="none" stroke="#c4d4e5" stroke-width="2" opacity=".6"/>
             <g class="box__ring box__ring--a"><ellipse cx="66" cy="72" rx="15" ry="13" fill="none" stroke="url(#ringGold)" stroke-width="5"/></g>
             <g class="box__ring box__ring--b"><ellipse cx="92" cy="72" rx="15" ry="13" fill="none" stroke="url(#ringGold)" stroke-width="5"/></g>
             <path class="box__spark" d="M80 36 l3 9 9 3 -9 3 -3 9 -3 -9 -9 -3 9 -3z" fill="#fff8e4"/>
           </svg>
         </div>
         <div class="finale__dog finale__dog--1" id="finaleDog1"></div>
-        <!-- alla fine il nastro si divide e raggiunge i collari dei cani -->
+        <!-- alla fine il nastro si divide e raggiunge i cani -->
         <svg class="finale__leash" viewBox="0 0 560 260" aria-hidden="true">
-          <path pathLength="1" d="M262 214 C 220 250, 160 236, 110 186" />
-          <path pathLength="1" d="M298 214 C 340 250, 400 236, 450 186" />
+          <path pathLength="1" d="M262 214 C 236 246, 196 248, 168 222" />
+          <path pathLength="1" d="M298 214 C 324 246, 364 248, 392 222" />
         </svg>
         <div class="finale__hearts" id="hearts" aria-hidden="true"></div>
       </div>
       <p class="finale__names"><span data-bind="lei">Enrica</span> <i>&amp;</i> <span data-bind="lui">Andrea</span></p>
       <p class="finale__date" data-bind="dataPunti">11 · 09 · 2027</p>
       <p class="finale__small">Con <span data-bind="cane0">Giotto</span> e <span data-bind="cane1">Penelope</span>, non vediamo l’ora di festeggiare con voi.</p>
-      <button class="btn btn--ghost-light shake-btn js-shake" type="button"><span class="js-shake-label">Scuoti il telefono per lanciare i petali</span></button>
+      <button class="btn btn--ghost shake-btn js-shake" type="button"><span class="js-shake-label">Scuoti il telefono per lanciare i petali</span></button>
       <p class="finale__credit">Sito realizzato con amore da <a href="https://alessandropiedimonte.dev" target="_blank" rel="noopener">alessandropiedimonte.dev</a></p>
     </footer>
   </main>
